@@ -47,8 +47,7 @@ class _HomeScreenState extends State<HomeScreen>
 
   void _loadBannerAd() {
     _bannerAd = BannerAd(
-      // Replace with your real Banner Ad Unit ID from AdMob dashboard
-      adUnitId: 'ca-app-pub-3940256099942544/6300978111', // ← swap for real
+      adUnitId: 'ca-app-pub-3940256099942544/6300978111',
       size: AdSize.banner,
       request: const AdRequest(),
       listener: BannerAdListener(
@@ -135,26 +134,13 @@ class _HomeScreenState extends State<HomeScreen>
                           ),
                           const SizedBox(width: 12),
                           VibeLogo(fontSize: 26, isDark: isDark),
+                          const Spacer(), // 👈 pushes coin away from logo
+
                           const SizedBox(width: 10),
+                          // ── ONLY COINS PILL (high score removed) ──
                           Flexible(
                             child: ConstrainedBox(
-                              constraints: const BoxConstraints(maxWidth: 110),
-                              child: _GamePill(
-                                icon: Icons.emoji_events_rounded,
-                                iconGradient: const [
-                                  Color(0xFF4A6BF3),
-                                  Color(0xFF7B5CF6),
-                                ],
-                                value:
-                                    _formatNum(StatsService.instance.highScore),
-                                isDark: isDark,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          Flexible(
-                            child: ConstrainedBox(
-                              constraints: const BoxConstraints(maxWidth: 110),
+                              constraints: const BoxConstraints(maxWidth: 120),
                               child: _GamePill(
                                 icon: Icons.monetization_on_rounded,
                                 iconGradient: const [
@@ -276,7 +262,7 @@ class _HomeScreenState extends State<HomeScreen>
                                   LogicCategory.missingNumber:
                                       const Color(0xFF8B5CF6),
                                   LogicCategory.oddOneOut:
-                                      const Color.fromARGB(255, 239, 136, 68),
+                                      const Color(0xFFEF4444),
                                 }[cat]!;
 
                                 return Padding(
@@ -368,7 +354,7 @@ class _HomeScreenState extends State<HomeScreen>
   }
 }
 
-// ── Game-style stat pill ──────────────────────────────────────────────────────
+// ── Game Pill ─────────────────────────────────────────────────────────────────
 class _GamePill extends StatelessWidget {
   final IconData icon;
   final List<Color> iconGradient;
@@ -516,7 +502,6 @@ class _PrimaryCardState extends State<_PrimaryCard>
                 color: widget.color.withValues(alpha: 0.22), width: 1.5),
           ),
           child: widget.fullWidth
-              // ── Full-width horizontal layout ──
               ? Row(
                   children: [
                     Container(
@@ -560,7 +545,6 @@ class _PrimaryCardState extends State<_PrimaryCard>
                         color: widget.color, size: 14),
                   ],
                 )
-              // ── Half-width vertical layout ──
               : Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
@@ -729,12 +713,6 @@ class _LogicSessionSheetState extends State<_LogicSessionSheet> {
     ),
   ];
 
-  static const _catIcons = {
-    LogicCategory.numberSequence: Icons.format_list_numbered,
-    LogicCategory.missingNumber: Icons.help_outline,
-    LogicCategory.oddOneOut: Icons.psychology,
-  };
-
   static const _catColors = {
     LogicCategory.numberSequence: Color(0xFF4A6BF3),
     LogicCategory.missingNumber: Color(0xFF8B5CF6),
@@ -751,6 +729,12 @@ class _LogicSessionSheetState extends State<_LogicSessionSheet> {
     LogicCategory.numberSequence: 'Find the pattern in the sequence',
     LogicCategory.missingNumber: 'Fill in the missing blank',
     LogicCategory.oddOneOut: 'Spot the one that does not belong',
+  };
+
+  static const _catEmojis = {
+    LogicCategory.numberSequence: '🔢',
+    LogicCategory.missingNumber: '❓',
+    LogicCategory.oddOneOut: '🔍',
   };
 
   @override
@@ -790,7 +774,10 @@ class _LogicSessionSheetState extends State<_LogicSessionSheet> {
                 color: color.withValues(alpha: 0.12),
                 borderRadius: BorderRadius.circular(13),
               ),
-              child: Icon(_catIcons[cat]!, color: color, size: 22),
+              child: Center(
+                child: Text(_catEmojis[cat]!,
+                    style: const TextStyle(fontSize: 22)),
+              ),
             ),
             const SizedBox(width: 14),
             Expanded(
@@ -878,7 +865,7 @@ class _LogicSessionSheetState extends State<_LogicSessionSheet> {
                   },
                   child: AnimatedContainer(
                     duration: const Duration(milliseconds: 150),
-                    width: 52,
+                    width: 60,
                     height: 44,
                     decoration: BoxDecoration(
                       color: sel ? color : _hi,

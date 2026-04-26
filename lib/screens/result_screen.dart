@@ -36,10 +36,8 @@ class _ResultScreenState extends State<ResultScreen>
   late AnimationController _scoreCtrl;
   late Animation<int> _scoreAnim;
 
-  // Key to capture only the result card area (not buttons)
   final GlobalKey _shareKey = GlobalKey();
   bool _isSharing = false;
-  bool _newHighScore = false;
 
   @override
   void initState() {
@@ -62,12 +60,10 @@ class _ResultScreenState extends State<ResultScreen>
       _scoreCtrl.forward();
       AdService.instance.maybeShowInterstitial(context);
 
-      // Save session — coins + high score
-      final isNew = await StatsService.instance.saveSession(
+      await StatsService.instance.saveSession(
         score: widget.gameState.score,
         correctAnswers: widget.gameState.correctAnswers,
       );
-      if (mounted && isNew) setState(() => _newHighScore = true);
     });
   }
 
@@ -105,7 +101,7 @@ class _ResultScreenState extends State<ResultScreen>
                 position: _slideAnim,
                 child: Column(
                   children: [
-                    // ── Shareable area — wrapped in RepaintBoundary ──
+                    // ── Shareable area ──────────────────────────
                     Expanded(
                       child: RepaintBoundary(
                         key: _shareKey,
@@ -133,7 +129,6 @@ class _ResultScreenState extends State<ResultScreen>
                               ),
                               const SizedBox(height: 10),
                               Expanded(child: _buildHistoryGrid(gs, textMuted)),
-                              // mathVIBE watermark shown in share image
                               Padding(
                                 padding: const EdgeInsets.only(top: 16),
                                 child: Center(
@@ -146,7 +141,7 @@ class _ResultScreenState extends State<ResultScreen>
                       ),
                     ),
 
-                    // ── Buttons — NOT captured in screenshot ──
+                    // ── Buttons ────────────────────────────────
                     Padding(
                       padding: const EdgeInsets.fromLTRB(24, 8, 24, 32),
                       child: _buildActions(border, textSecondary),
@@ -225,35 +220,6 @@ class _ResultScreenState extends State<ResultScreen>
       ),
       child: Column(
         children: [
-          // New high score banner
-          if (_newHighScore) ...[
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
-              margin: const EdgeInsets.only(bottom: 10),
-              decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: [Color(0xFFFBBF24), Color(0xFFF59E0B)],
-                ),
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Icon(Icons.emoji_events_rounded,
-                      color: Colors.white, size: 14),
-                  const SizedBox(width: 5),
-                  Text(
-                    'NEW HIGH SCORE!',
-                    style: AppTheme.mono(
-                      fontSize: 10,
-                      fontWeight: FontWeight.w700,
-                      color: Colors.white,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
           Text(
             gs.isInfinite || widget.session.mode == GameMode.random
                 ? 'QUESTIONS SURVIVED'
@@ -471,17 +437,14 @@ class _ResultScreenState extends State<ResultScreen>
     );
   }
 
-  // ── Screenshot & Share ─────────────────────────────────────────
   Future<void> _shareResult() async {
     setState(() => _isSharing = true);
     try {
       await Future.delayed(const Duration(milliseconds: 100));
-
       final boundary = _shareKey.currentContext?.findRenderObject()
           as RenderRepaintBoundary?;
       if (boundary == null) return;
 
-      // Capture at 3x pixel ratio for crisp image on all screens
       final image = await boundary.toImage(pixelRatio: 3.0);
       final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
       if (byteData == null) return;
@@ -497,7 +460,6 @@ class _ResultScreenState extends State<ResultScreen>
         subject: 'My mathVIBE Result',
       );
     } catch (_) {
-      // Fallback to text if screenshot fails for any reason
       final gs = widget.gameState;
       final accuracy = (gs.accuracy * 100).toStringAsFixed(0);
       Share.share(
@@ -510,17 +472,10 @@ class _ResultScreenState extends State<ResultScreen>
     }
   }
 
-  // ── FIXED: Play Again with rewarded ad ────────────────────────
-  // Pro users → go straight to game (no ad)
-  // Free users → show rewarded ad, then navigate regardless of result
-  //              (ad not ready = still let them play, just no reward)
   Future<void> _playAgain() async {
     if (!mounted) return;
 
     if (!AdService.instance.isPro) {
-      // Show the rewarded ad. We navigate to the game whether or not
-      // the user watched it — the ad is the "gate" only in the sense
-      // that we try to show it; failing silently is acceptable UX.
       await AdService.instance.showRewardedAd(context);
       if (!mounted) return;
     }
@@ -548,23 +503,29 @@ class _ResultScreenState extends State<ResultScreen>
   _Grade _getGrade(GameState gs) {
     if (gs.isGameOver) {
       final score = gs.correctAnswers;
-      if (score >= 20)
+      if (score >= 20) {
         return const _Grade(
             '💀', 'Wiped Out!', 'Incredible run before the end.');
-      if (score >= 10)
+      }
+      if (score >= 10) {
         return const _Grade('😤', 'So Close!', 'Solid effort. Go again.');
-      if (score >= 5)
+      }
+      if (score >= 5) {
         return const _Grade(
             '💪', 'Keep Going', 'Every session builds the muscle.');
+      }
       return const _Grade('🧠', 'Just Starting', 'Focus and try again.');
     }
     final acc = gs.accuracy;
-    if (acc >= 0.95)
+    if (acc >= 0.95) {
       return const _Grade('🔥', 'Perfect Run!', 'Absolute fire.');
-    if (acc >= 0.80)
+    }
+    if (acc >= 0.80) {
       return const _Grade('⚡', 'Sharp Mind', 'Really solid work.');
-    if (acc >= 0.60)
+    }
+    if (acc >= 0.60) {
       return const _Grade('💪', 'Getting There', 'Keep grinding.');
+    }
     return const _Grade('🧠', 'Keep Practicing', 'Every rep counts.');
   }
 }
