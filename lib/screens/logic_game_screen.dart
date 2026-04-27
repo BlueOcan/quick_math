@@ -40,7 +40,7 @@ class _LogicGameScreenState extends State<LogicGameScreen>
   int _correct = 0;
   int _streak = 0;
   int _bestStreak = 0;
-  final List<bool> _history = []; // ← tracks correct/wrong per question
+  final List<bool> _history = [];
 
   // ── Answer state ───────────────────────────────────────────────
   String? _selectedOption;
@@ -112,7 +112,7 @@ class _LogicGameScreenState extends State<LogicGameScreen>
     setState(() {
       _selectedOption = chosen;
       _answered = true;
-      _history.add(correct); // ← record result
+      _history.add(correct);
       if (correct) {
         _score++;
         _correct++;
@@ -154,7 +154,7 @@ class _LogicGameScreenState extends State<LogicGameScreen>
         category: widget.category,
         difficulty: widget.difficulty,
         totalQuestions: widget.totalQuestions,
-        history: _history, // ← pass history
+        history: _history,
       ),
       transitionsBuilder: (_, anim, __, child) =>
           FadeTransition(opacity: anim, child: child),
@@ -340,7 +340,7 @@ class _LogicGameScreenState extends State<LogicGameScreen>
                         ],
                       ),
                       child: Column(children: [
-                        // Badge
+                        // ── Badge: text only, no emoji ────────────
                         Container(
                           padding: const EdgeInsets.symmetric(
                               horizontal: 10, vertical: 4),
@@ -348,38 +348,24 @@ class _LogicGameScreenState extends State<LogicGameScreen>
                             color: _color.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(20),
                           ),
-                          child: Row(mainAxisSize: MainAxisSize.min, children: [
-                            Text(widget.category.emoji,
-                                style: const TextStyle(fontSize: 12)),
-                            const SizedBox(width: 4),
-                            Text(widget.category.label.toUpperCase(),
-                                style: AppTheme.geist(
-                                    fontSize: 10,
-                                    fontWeight: FontWeight.w700,
-                                    color: _color,
-                                    letterSpacing: 1)),
-                          ]),
+                          child: Text(
+                            widget.category.label.toUpperCase(),
+                            style: AppTheme.geist(
+                                fontSize: 10,
+                                fontWeight: FontWeight.w700,
+                                color: _color,
+                                letterSpacing: 1),
+                          ),
                         ),
                         const SizedBox(height: 16),
-                        // Question text
+                        // ── Question text ─────────────────────────
                         Text(q.questionText,
                             textAlign: TextAlign.center,
                             style: AppTheme.mono(
                                 fontSize: 20,
                                 fontWeight: FontWeight.w700,
                                 color: tp)),
-                        const SizedBox(height: 8),
-                        // Hint
-                        Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(Icons.lightbulb_outline_rounded,
-                                  color: tm, size: 12),
-                              const SizedBox(width: 4),
-                              Text(q.hintText,
-                                  style:
-                                      AppTheme.geist(fontSize: 11, color: tm)),
-                            ]),
+                        // ── Hint row REMOVED ──────────────────────
                       ]),
                     ),
                   ),
@@ -509,7 +495,7 @@ class _OptionButton extends StatelessWidget {
             Expanded(
                 child: Text(label,
                     style: AppTheme.geist(
-                        fontSize: 16,
+                        fontSize: 20, // ← changed from 16 to 20
                         fontWeight: FontWeight.w600,
                         color: textColor))),
             if (trailingIcon != null)

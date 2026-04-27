@@ -684,7 +684,7 @@ class _LogicSessionSheet extends StatefulWidget {
 
 class _LogicSessionSheetState extends State<_LogicSessionSheet> {
   int _diff = 0;
-  int _qIdx = 1; // default 20
+  int _qIdx = 0; // default 20
 
   final _qOpts = const [10, 20, 30, 50];
 
