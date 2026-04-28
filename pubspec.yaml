@@ -28,3 +28,4 @@ flutter:
     - assets/words/synonyms.json
     - assets/words/antonyms.json
     - assets/words/spell_check.json
+    - assets/images/logo.png
