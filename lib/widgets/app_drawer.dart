@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:webview_flutter/webview_flutter.dart';
 import '../theme/app_theme.dart';
 import '../main.dart';
 import '../services/ad_service.dart';
@@ -52,10 +53,8 @@ class _AppDrawerState extends State<AppDrawer> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // Pro section
+                        // Pro upgrade banner (hidden if already pro)
                         if (!AdService.instance.isPro) ...[
-                          _sectionLabel('UPGRADE'),
-                          const SizedBox(height: 10),
                           _buildProBanner(),
                           const SizedBox(height: 24),
                         ],
@@ -553,18 +552,20 @@ class _AppDrawerState extends State<AppDrawer> {
 
   void _openUrl(String page) {
     Navigator.pop(context);
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          '${page == 'privacy' ? 'Privacy Policy' : 'Terms of Service'} coming soon!',
-          style: AppTheme.geist(fontSize: 13, color: Colors.white),
-        ),
-        backgroundColor: AppTheme.surface,
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        margin: const EdgeInsets.all(16),
-      ),
-    );
+    // ── REPLACE THESE URLs with your actual GitHub raw links ──────────────
+    // Format: https://raw.githubusercontent.com/YOUR_USERNAME/YOUR_REPO/main/legal/privacy_policy.html
+    const privacyUrl =
+        'https://raw.githubusercontent.com/YOUR_USERNAME/YOUR_REPO/main/legal/privacy_policy.html';
+    const termsUrl =
+        'https://raw.githubusercontent.com/YOUR_USERNAME/YOUR_REPO/main/legal/terms_of_service.html';
+    // ─────────────────────────────────────────────────────────────────────
+
+    final url = page == 'privacy' ? privacyUrl : termsUrl;
+    final title = page == 'privacy' ? 'Privacy Policy' : 'Terms of Service';
+
+    Navigator.of(context).push(MaterialPageRoute(
+      builder: (_) => _LegalWebView(title: title, url: url),
+    ));
   }
 }
 
@@ -583,4 +584,97 @@ class _DrawerTileData {
     this.onTap,
     this.trailing,
   });
+}
+
+// ── Legal WebView screen ──────────────────────────────────────────────────────
+class _LegalWebView extends StatefulWidget {
+  final String title;
+  final String url;
+  const _LegalWebView({required this.title, required this.url});
+
+  @override
+  State<_LegalWebView> createState() => _LegalWebViewState();
+}
+
+class _LegalWebViewState extends State<_LegalWebView> {
+  bool _loading = true;
+  bool _hasError = false;
+
+  // We use a simple WebView via the webview_flutter package.
+  // If you haven't added it yet, add to pubspec.yaml:
+  //   webview_flutter: ^4.4.2
+  late final _controller = WebViewController()
+    ..setJavaScriptMode(JavaScriptMode.unrestricted)
+    ..setNavigationDelegate(NavigationDelegate(
+      onPageStarted: (_) => setState(() {
+        _loading = true;
+        _hasError = false;
+      }),
+      onPageFinished: (_) => setState(() => _loading = false),
+      onWebResourceError: (_) => setState(() {
+        _loading = false;
+        _hasError = true;
+      }),
+    ))
+    ..loadRequest(Uri.parse(widget.url));
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = themeNotifier.value == ThemeMode.dark;
+    final bg = isDark ? AppTheme.background : AppTheme.lightBackground;
+    final tp = isDark ? AppTheme.textPrimary : AppTheme.lightTextPrimary;
+    final ts = isDark ? AppTheme.textSecondary : AppTheme.lightTextSecondary;
+
+    return Scaffold(
+      backgroundColor: bg,
+      appBar: AppBar(
+        backgroundColor: bg,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back_rounded, color: tp),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: Text(widget.title,
+            style: AppTheme.geist(
+                fontSize: 16, fontWeight: FontWeight.w700, color: tp)),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.refresh_rounded, color: ts, size: 20),
+            onPressed: () => _controller.reload(),
+          ),
+        ],
+      ),
+      body: Stack(
+        children: [
+          if (_hasError)
+            Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.wifi_off_rounded, color: ts, size: 48),
+                  const SizedBox(height: 16),
+                  Text('Could not load page.',
+                      style: AppTheme.geist(fontSize: 14, color: ts)),
+                  const SizedBox(height: 12),
+                  TextButton(
+                    onPressed: () => _controller.reload(),
+                    child: Text('Try again',
+                        style: AppTheme.geist(
+                            color: AppTheme.accent,
+                            fontWeight: FontWeight.w600)),
+                  ),
+                ],
+              ),
+            )
+          else
+            WebViewWidget(controller: _controller),
+          if (_loading)
+            const LinearProgressIndicator(
+              backgroundColor: Colors.transparent,
+              color: AppTheme.accent,
+              minHeight: 2,
+            ),
+        ],
+      ),
+    );
+  }
 }

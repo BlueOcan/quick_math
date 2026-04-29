@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Terms of Service – mathVIBE</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,700;1,9..40,400&family=DM+Mono:wght@400;500&display=swap');
+
+    :root {
+      --bg:        #F8F9FC;
+      --surface:   #FFFFFF;
+      --border:    #E5E8EF;
+      --accent:    #4A6BF3;
+      --accent2:   #7B5CF6;
+      --text:      #0D1117;
+      --muted:     #6B7280;
+      --tag-bg:    #EEF2FF;
+      --tag-color: #3B5BDB;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+      padding: 0 0 80px;
+    }
+
+    .header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 40px 24px 32px;
+      text-align: center;
+    }
+
+    .logo-mark {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 56px; height: 56px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      border-radius: 16px;
+      margin-bottom: 16px;
+      box-shadow: 0 8px 24px rgba(74,107,243,0.28);
+    }
+    .logo-mark svg { width: 28px; height: 28px; fill: white; }
+
+    .app-name {
+      font-family: 'DM Mono', monospace;
+      font-size: 24px;
+      font-weight: 500;
+      letter-spacing: -0.5px;
+    }
+    .app-name span { color: var(--accent); }
+
+    .header-meta {
+      margin-top: 8px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .tag {
+      display: inline-block;
+      background: var(--tag-bg);
+      color: var(--tag-color);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      padding: 4px 10px;
+      border-radius: 20px;
+      margin-bottom: 12px;
+    }
+
+    .container {
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    .section {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px;
+      margin-top: 20px;
+    }
+
+    .section-number {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px; height: 28px;
+      background: var(--tag-bg);
+      color: var(--accent);
+      font-family: 'DM Mono', monospace;
+      font-size: 12px;
+      font-weight: 500;
+      border-radius: 8px;
+      margin-right: 10px;
+      flex-shrink: 0;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 14px;
+    }
+
+    h2 {
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: -0.2px;
+      color: var(--text);
+    }
+
+    p {
+      font-size: 14px;
+      color: var(--muted);
+      margin-bottom: 10px;
+    }
+    p:last-child { margin-bottom: 0; }
+
+    ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    ul li {
+      font-size: 14px;
+      color: var(--muted);
+      padding: 6px 0 6px 20px;
+      position: relative;
+      border-bottom: 1px solid var(--border);
+    }
+    ul li:last-child { border-bottom: none; }
+
+    ul li::before {
+      content: '';
+      position: absolute;
+      left: 0; top: 50%;
+      transform: translateY(-50%);
+      width: 6px; height: 6px;
+      background: var(--accent);
+      border-radius: 50%;
+      opacity: 0.5;
+    }
+
+    .highlight-box {
+      background: var(--tag-bg);
+      border: 1px solid rgba(74,107,243,0.2);
+      border-radius: 10px;
+      padding: 14px 16px;
+      margin-top: 12px;
+    }
+    .highlight-box p {
+      margin: 0;
+      color: var(--tag-color);
+      font-size: 13px;
+    }
+
+    .warning-box {
+      background: #FFF8EC;
+      border: 1px solid rgba(245,158,11,0.3);
+      border-radius: 10px;
+      padding: 14px 16px;
+      margin-top: 12px;
+    }
+    .warning-box p {
+      margin: 0;
+      color: #92400E;
+      font-size: 13px;
+    }
+
+    .contact-box {
+      background: linear-gradient(135deg, rgba(74,107,243,0.06), rgba(123,92,246,0.06));
+      border: 1px solid rgba(74,107,243,0.18);
+      border-radius: 16px;
+      padding: 28px;
+      margin-top: 20px;
+      text-align: center;
+    }
+    .contact-box h2 { margin-bottom: 8px; }
+    .contact-box a {
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .footer {
+      text-align: center;
+      margin-top: 32px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    a { color: var(--accent); }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <div class="logo-mark">
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 3c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm4 11H8v-2h8v2zm0-4H8v-2h8v2zm-3-4H8V7h5v2z"/>
+      </svg>
+    </div>
+    <div class="tag">TERMS OF SERVICE</div>
+    <div class="app-name">math<span>VIBE</span></div>
+    <div class="header-meta">Last updated: January 2026 &nbsp;·&nbsp; Effective immediately</div>
+  </div>
+
+  <div class="container">
+
+    <div class="section">
+      <div class="section-header">
+        <span class="section-number">i</span>
+        <h2>Agreement to Terms</h2>
+      </div>
+      <p>By downloading, installing, or using <strong>mathVIBE</strong> ("the App"), you agree to be bound by these Terms of Service ("Terms"). If you do not agree to these Terms, do not use the App.</p>
+      <p>These Terms apply to all users of mathVIBE, including free and Pro subscribers.</p>
+    </div>
+
+    <div class="section">
+      <div class="section-header">
+        <span class="section-number">1</span>
+        <h2>Use of the App</h2>
+      </div>
+      <p>mathVIBE is a brain training application for educational and entertainment purposes. You agree to use the App only for its intended purpose and in compliance with all applicable laws.</p>
+      <p>You must not:</p>
+      <ul>
+        <li>Reverse-engineer, decompile, or disassemble any part of the App</li>
+        <li>Attempt to extract the source code or algorithms</li>
+        <li>Use the App for any unlawful or harmful purpose</li>
+        <li>Interfere with or disrupt the App's functionality</li>
+        <li>Create derivative works without our written permission</li>
+      </ul>
+    </div>
+
+    <div class="section">
+      <div class="section-header">
+        <span class="section-number">2</span>
+        <h2>Intellectual Property</h2>
+      </div>
+      <p>All content within mathVIBE — including but not limited to the name "mathVIBE", logo, question bank, game logic, UI design, animations, and code — is the exclusive property of mathVIBE and protected by applicable intellectual property laws.</p>
+      <div class="highlight-box">
+        <p>✓ &nbsp;Your use of the App does not grant you any ownership rights over any part of mathVIBE.</p>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-header">
+        <span class="section-number">3</span>
+        <h2>Advertisements</h2>
+      </div>
+      <p>mathVIBE is free to use and is supported entirely by advertising revenue provided by <strong>Google AdMob</strong>. By using the App you consent to the display of ads within the application.</p>
+      <ul>
+        <li>Ads are served by Google AdMob and are subject to Google's own policies</li>
+        <li>We are not responsible for the content of third-party advertisements</li>
+        <li>You may limit ad personalisation through your device's ad settings</li>
+      </ul>
+    </div>
+
+    <div class="section">
+      <div class="section-header">
+        <span class="section-number">4</span>
+        <h2>Disclaimer of Warranties</h2>
+      </div>
+      <p>mathVIBE is provided "as is" and "as available" without warranties of any kind, either express or implied, including but not limited to:</p>
+      <ul>
+        <li>Uninterrupted or error-free operation</li>
+        <li>Fitness for a particular purpose</li>
+        <li>Accuracy of educational content</li>
+        <li>Compatibility with all devices</li>
+      </ul>
+      <p style="margin-top: 12px;">We do not guarantee that the App will be free from bugs, viruses, or other harmful components.</p>
+    </div>
+
+    <div class="section">
+      <div class="section-header">
+        <span class="section-number">5</span>
+        <h2>Limitation of Liability</h2>
+      </div>
+      <p>To the maximum extent permitted by law, mathVIBE and its developers shall not be liable for any indirect, incidental, special, consequential, or punitive damages arising from your use or inability to use the App.</p>
+      <p>Our total liability to you for any claims arising from the use of mathVIBE shall not exceed the amount you paid for mathVIBE Pro (if applicable).</p>
+    </div>
+
+    <div class="section">
+      <div class="section-header">
+        <span class="section-number">6</span>
+        <h2>Children</h2>
+      </div>
+      <p>mathVIBE is designed to be suitable for all ages. Users under the age of 13 should have parental consent before using the App. We comply with applicable laws regarding children's privacy and advertising.</p>
+    </div>
+
+    <div class="section">
+      <div class="section-header">
+        <span class="section-number">7</span>
+        <h2>Termination</h2>
+      </div>
+      <p>We reserve the right to terminate or suspend access to mathVIBE at our sole discretion, without notice, for conduct that we believe violates these Terms or is harmful to other users, us, third parties, or for any other reason.</p>
+      <p>Upon termination, your right to use the App ceases immediately. Local data stored on your device may be removed by uninstalling the App.</p>
+    </div>
+
+    <div class="section">
+      <div class="section-header">
+        <span class="section-number">8</span>
+        <h2>Changes to Terms</h2>
+      </div>
+      <p>We reserve the right to modify these Terms at any time. We will update the "Last updated" date at the top of this page. Your continued use of mathVIBE after any changes constitutes your acceptance of the new Terms.</p>
+      <p>We encourage you to review these Terms periodically.</p>
+    </div>
+
+    <div class="section">
+      <div class="section-header">
+        <span class="section-number">9</span>
+        <h2>Governing Law</h2>
+      </div>
+      <p>These Terms shall be governed by and construed in accordance with applicable laws. Any disputes arising under these Terms shall be resolved through good-faith negotiation. If unresolved, disputes will be subject to binding arbitration.</p>
+    </div>
+
+    <div class="contact-box">
+      <h2>Questions About These Terms?</h2>
+      <p style="color:var(--muted); font-size:14px; margin-top:6px; margin-bottom:0">
+        Contact us at <a href="mailto:thethreezerocompany@gmail.com">thethreezerocompany@gmail.com</a><br/>
+        We typically respond within 48 hours.
+      </p>
+    </div>
+
+    <div class="footer">
+      © 2026 mathVIBE. All rights reserved.
+    </div>
+
+  </div>
+</body>
+</html>
