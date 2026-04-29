@@ -555,9 +555,9 @@ class _AppDrawerState extends State<AppDrawer> {
     // ── REPLACE THESE URLs with your actual GitHub raw links ──────────────
     // Format: https://raw.githubusercontent.com/YOUR_USERNAME/YOUR_REPO/main/legal/privacy_policy.html
     const privacyUrl =
-        'https://raw.githubusercontent.com/YOUR_USERNAME/YOUR_REPO/main/legal/privacy_policy.html';
+        'https://blueocan.github.io/quick_math/legal/privacy_policy.html';
     const termsUrl =
-        'https://raw.githubusercontent.com/YOUR_USERNAME/YOUR_REPO/main/legal/terms_of_service.html';
+        'https://blueocan.github.io/quick_math/legal/terms_of_service.html';
     // ─────────────────────────────────────────────────────────────────────
 
     final url = page == 'privacy' ? privacyUrl : termsUrl;
