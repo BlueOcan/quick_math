@@ -10,6 +10,7 @@ import '../widgets/common_widgets.dart';
 import '../main.dart';
 import 'home_screen.dart';
 import 'logic_game_screen.dart';
+import '../services/ad_service.dart';
 
 const _logicColors = {
   LogicCategory.numberSequence: Color(0xFF4A6BF3),
@@ -514,7 +515,14 @@ class _LogicResultScreenState extends State<LogicResultScreen>
     }
   }
 
-  void _playAgain() {
+  Future<void> _playAgain() async {
+    if (!mounted) return;
+
+    if (!AdService.instance.isPro) {
+      await AdService.instance.showRewardedAd(context);
+      if (!mounted) return;
+    }
+
     Navigator.of(context).pushReplacement(PageRouteBuilder(
       pageBuilder: (_, anim, __) => LogicGameScreen(
         category: widget.category,

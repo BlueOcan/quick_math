@@ -231,37 +231,4 @@ class NotificationService {
       }
     }
   }
-
-  // ── TEST ONLY: fires in 2 minutes — remove before release ─────
-  Future<void> sendTestNotification() async {
-    const androidDetails = AndroidNotificationDetails(
-      'mathvibe_daily',
-      'Daily Reminders',
-      importance: Importance.high,
-      priority: Priority.high,
-      icon: '@mipmap/ic_launcher',
-    );
-    const details = NotificationDetails(
-      android: androidDetails,
-      iOS: DarwinNotificationDetails(
-        presentAlert: true,
-        presentBadge: true,
-        presentSound: true,
-      ),
-    );
-
-    final scheduled =
-        tz.TZDateTime.now(tz.local).add(const Duration(minutes: 2));
-
-    await _plugin.zonedSchedule(
-      9999,
-      '✅ Test Notification',
-      'mathVIBE notifications are working!',
-      scheduled,
-      details,
-      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-      uiLocalNotificationDateInterpretation:
-          UILocalNotificationDateInterpretation.absoluteTime,
-    );
-  }
 }

@@ -28,8 +28,6 @@ void main() async {
   await StatsService.instance.init();
   await NotificationService.instance.init();
 
-  await NotificationService.instance.sendTestNotification();
-
   runApp(const MathVibeApp());
 }
 
