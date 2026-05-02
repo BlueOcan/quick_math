@@ -15,7 +15,7 @@ class AdIds {
   static const String _androidRewarded =
       'ca-app-pub-8934941458065542/5543557632';
   static const String _androidInterstitial =
-      'ca-app-pub-8934941458065542/9834156439';
+      'ca-app-pub-8934941458065542/1979295689';
 
   // ── iOS ───────────────────────────────────────────────────────
   static const String _iosRewarded =

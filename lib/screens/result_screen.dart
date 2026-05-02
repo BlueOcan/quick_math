@@ -44,22 +44,24 @@ class _ResultScreenState extends State<ResultScreen>
     super.initState();
     _mainCtrl = AnimationController(
         vsync: this, duration: const Duration(milliseconds: 500));
-    _fadeAnim = CurvedAnimation(parent: _mainCtrl, curve: Curves.easeOut);
+    _fadeAnim =
+        CurvedAnimation(parent: _mainCtrl, curve: Curves.easeOut);
     _slideAnim = Tween<Offset>(
       begin: const Offset(0, 0.06),
       end: Offset.zero,
-    ).animate(CurvedAnimation(parent: _mainCtrl, curve: Curves.easeOut));
+    ).animate(
+        CurvedAnimation(parent: _mainCtrl, curve: Curves.easeOut));
 
     _scoreCtrl = AnimationController(
         vsync: this, duration: const Duration(milliseconds: 1000));
     _scoreAnim = IntTween(begin: 0, end: widget.gameState.score)
-        .animate(CurvedAnimation(parent: _scoreCtrl, curve: Curves.easeOut));
+        .animate(CurvedAnimation(
+            parent: _scoreCtrl, curve: Curves.easeOut));
 
     Future.delayed(const Duration(milliseconds: 80), () async {
       _mainCtrl.forward();
       _scoreCtrl.forward();
       AdService.instance.maybeShowInterstitial(context);
-
       await StatsService.instance.saveSession(
         score: widget.gameState.score,
         correctAnswers: widget.gameState.correctAnswers,
@@ -80,13 +82,16 @@ class _ResultScreenState extends State<ResultScreen>
       valueListenable: themeNotifier,
       builder: (_, __, ___) {
         final isDark = themeNotifier.value == ThemeMode.dark;
-        final bg = isDark ? AppTheme.background : AppTheme.lightBackground;
+        final bg =
+            isDark ? AppTheme.background : AppTheme.lightBackground;
         final border = isDark ? AppTheme.border : AppTheme.lightBorder;
         final textPrimary =
             isDark ? AppTheme.textPrimary : AppTheme.lightTextPrimary;
-        final textSecondary =
-            isDark ? AppTheme.textSecondary : AppTheme.lightTextSecondary;
-        final textMuted = isDark ? AppTheme.textMuted : AppTheme.lightTextMuted;
+        final textSecondary = isDark
+            ? AppTheme.textSecondary
+            : AppTheme.lightTextSecondary;
+        final textMuted =
+            isDark ? AppTheme.textMuted : AppTheme.lightTextMuted;
 
         final gs = widget.gameState;
         final accuracy = gs.accuracy;
@@ -101,18 +106,19 @@ class _ResultScreenState extends State<ResultScreen>
                 position: _slideAnim,
                 child: Column(
                   children: [
-                    // ── Shareable area ──────────────────────────
                     Expanded(
                       child: RepaintBoundary(
                         key: _shareKey,
                         child: Container(
                           color: bg,
-                          padding: const EdgeInsets.fromLTRB(24, 36, 24, 16),
+                          padding: const EdgeInsets.fromLTRB(
+                              24, 36, 24, 16),
                           child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                            crossAxisAlignment:
+                                CrossAxisAlignment.start,
                             children: [
-                              _buildHeader(
-                                  grade, gs, textPrimary, textSecondary),
+                              _buildHeader(grade, gs, textPrimary,
+                                  textSecondary),
                               const SizedBox(height: 24),
                               _buildScoreCard(gs, textMuted),
                               const SizedBox(height: 14),
@@ -128,11 +134,15 @@ class _ResultScreenState extends State<ResultScreen>
                                 ),
                               ),
                               const SizedBox(height: 10),
-                              Expanded(child: _buildHistoryGrid(gs, textMuted)),
+                              Expanded(
+                                  child: _buildHistoryGrid(
+                                      gs, textMuted)),
                               Padding(
-                                padding: const EdgeInsets.only(top: 16),
+                                padding:
+                                    const EdgeInsets.only(top: 16),
                                 child: Center(
-                                  child: VibeLogo(fontSize: 14, isDark: isDark),
+                                  child: VibeLogo(
+                                      fontSize: 14, isDark: isDark),
                                 ),
                               ),
                             ],
@@ -140,10 +150,9 @@ class _ResultScreenState extends State<ResultScreen>
                         ),
                       ),
                     ),
-
-                    // ── Buttons ────────────────────────────────
                     Padding(
-                      padding: const EdgeInsets.fromLTRB(24, 8, 24, 32),
+                      padding:
+                          const EdgeInsets.fromLTRB(24, 8, 24, 32),
                       child: _buildActions(border, textSecondary),
                     ),
                   ],
@@ -156,8 +165,8 @@ class _ResultScreenState extends State<ResultScreen>
     );
   }
 
-  Widget _buildHeader(
-      _Grade grade, GameState gs, Color textPrimary, Color textSecondary) {
+  Widget _buildHeader(_Grade grade, GameState gs, Color textPrimary,
+      Color textSecondary) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -167,14 +176,15 @@ class _ResultScreenState extends State<ResultScreen>
             children: [
               if (gs.isGameOver) ...[
                 Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 10, vertical: 4),
                   margin: const EdgeInsets.only(bottom: 8),
                   decoration: BoxDecoration(
                     color: AppTheme.danger.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(8),
                     border: Border.all(
-                        color: AppTheme.danger.withValues(alpha: 0.4)),
+                        color:
+                            AppTheme.danger.withValues(alpha: 0.4)),
                   ),
                   child: Text(
                     'GAME OVER',
@@ -196,10 +206,9 @@ class _ResultScreenState extends State<ResultScreen>
                 ),
               ),
               const SizedBox(height: 5),
-              Text(
-                grade.subtitle,
-                style: AppTheme.geist(fontSize: 14, color: textSecondary),
-              ),
+              Text(grade.subtitle,
+                  style: AppTheme.geist(
+                      fontSize: 14, color: textSecondary)),
             ],
           ),
         ),
@@ -211,17 +220,20 @@ class _ResultScreenState extends State<ResultScreen>
   Widget _buildScoreCard(GameState gs, Color textMuted) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 24),
+      padding: const EdgeInsets.symmetric(
+          vertical: 24, horizontal: 24),
       decoration: BoxDecoration(
         color: AppTheme.accent.withValues(alpha: 0.07),
         borderRadius: BorderRadius.circular(22),
         border: Border.all(
-            color: AppTheme.accent.withValues(alpha: 0.22), width: 1.5),
+            color: AppTheme.accent.withValues(alpha: 0.22),
+            width: 1.5),
       ),
       child: Column(
         children: [
           Text(
-            gs.isInfinite || widget.session.mode == GameMode.random
+            gs.isInfinite ||
+                    widget.session.mode == GameMode.random
                 ? 'QUESTIONS SURVIVED'
                 : 'FINAL SCORE',
             style: AppTheme.geist(
@@ -244,18 +256,18 @@ class _ResultScreenState extends State<ResultScreen>
             ),
           ),
           const SizedBox(height: 4),
-          Text(
-            'Best streak  ×  ${gs.bestStreak}',
-            style: AppTheme.geist(fontSize: 13, color: textMuted),
-          ),
+          Text('Best streak  ×  ${gs.bestStreak}',
+              style: AppTheme.geist(
+                  fontSize: 13, color: textMuted)),
           const SizedBox(height: 10),
-          // Coins earned this session
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+            padding: const EdgeInsets.symmetric(
+                horizontal: 14, vertical: 6),
             decoration: BoxDecoration(
               color: AppTheme.amber.withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: AppTheme.amber.withValues(alpha: 0.3)),
+              border: Border.all(
+                  color: AppTheme.amber.withValues(alpha: 0.3)),
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
@@ -265,14 +277,19 @@ class _ResultScreenState extends State<ResultScreen>
                   height: 20,
                   decoration: BoxDecoration(
                     gradient: const LinearGradient(
-                      colors: [Color(0xFFFBBF24), Color(0xFFF59E0B)],
+                      colors: [
+                        Color(0xFFFBBF24),
+                        Color(0xFFF59E0B)
+                      ],
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                     ),
                     borderRadius: BorderRadius.circular(6),
                   ),
-                  child: const Icon(Icons.monetization_on_rounded,
-                      color: Colors.white, size: 12),
+                  child: const Icon(
+                      Icons.monetization_on_rounded,
+                      color: Colors.white,
+                      size: 12),
                 ),
                 const SizedBox(width: 6),
                 Text(
@@ -378,7 +395,8 @@ class _ResultScreenState extends State<ResultScreen>
                     child: CircularProgressIndicator(
                         strokeWidth: 2, color: AppTheme.accent),
                   )
-                : Icon(Icons.share_rounded, size: 18, color: textSecondary),
+                : Icon(Icons.share_rounded,
+                    size: 18, color: textSecondary),
             label: Text(
               _isSharing ? 'Preparing...' : 'Share Result',
               style: AppTheme.geist(
@@ -387,7 +405,8 @@ class _ResultScreenState extends State<ResultScreen>
                   color: textSecondary),
             ),
             style: OutlinedButton.styleFrom(
-              padding: const EdgeInsets.symmetric(vertical: 14),
+              padding:
+                  const EdgeInsets.symmetric(vertical: 14),
               side: BorderSide(color: border),
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16)),
@@ -405,7 +424,8 @@ class _ResultScreenState extends State<ResultScreen>
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppTheme.accent,
                   foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 16),
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16)),
                 ),
@@ -415,7 +435,8 @@ class _ResultScreenState extends State<ResultScreen>
             Expanded(
               child: OutlinedButton.icon(
                 onPressed: _goHome,
-                icon: Icon(Icons.home_rounded, size: 18, color: textSecondary),
+                icon: Icon(Icons.home_rounded,
+                    size: 18, color: textSecondary),
                 label: Text(
                   'Home',
                   style: AppTheme.geist(
@@ -424,7 +445,8 @@ class _ResultScreenState extends State<ResultScreen>
                       color: textSecondary),
                 ),
                 style: OutlinedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 16),
                   side: BorderSide(color: border),
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16)),
@@ -441,19 +463,17 @@ class _ResultScreenState extends State<ResultScreen>
     setState(() => _isSharing = true);
     try {
       await Future.delayed(const Duration(milliseconds: 100));
-      final boundary = _shareKey.currentContext?.findRenderObject()
-          as RenderRepaintBoundary?;
+      final boundary = _shareKey.currentContext
+          ?.findRenderObject() as RenderRepaintBoundary?;
       if (boundary == null) return;
-
       final image = await boundary.toImage(pixelRatio: 3.0);
-      final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
+      final byteData = await image.toByteData(
+          format: ui.ImageByteFormat.png);
       if (byteData == null) return;
-
       final bytes = byteData.buffer.asUint8List();
       final dir = await getTemporaryDirectory();
       final file = File('${dir.path}/mathvibe_result.png');
       await file.writeAsBytes(bytes);
-
       await Share.shareXFiles(
         [XFile(file.path)],
         text: 'Can you beat my mathVIBE score? 🧠🔥',
@@ -472,16 +492,12 @@ class _ResultScreenState extends State<ResultScreen>
     }
   }
 
-  Future<void> _playAgain() async {
+  // ── Play Again — no ad gate, just navigate directly ───────────
+  void _playAgain() {
     if (!mounted) return;
-
-    if (!AdService.instance.isPro) {
-      await AdService.instance.showRewardedAd(context);
-      if (!mounted) return;
-    }
-
     Navigator.of(context).pushReplacement(PageRouteBuilder(
-      pageBuilder: (_, anim, __) => GameScreen(session: widget.session),
+      pageBuilder: (_, anim, __) =>
+          GameScreen(session: widget.session),
       transitionsBuilder: (_, anim, __, child) =>
           FadeTransition(opacity: anim, child: child),
       transitionDuration: const Duration(milliseconds: 280),
@@ -508,13 +524,15 @@ class _ResultScreenState extends State<ResultScreen>
             '💀', 'Wiped Out!', 'Incredible run before the end.');
       }
       if (score >= 10) {
-        return const _Grade('😤', 'So Close!', 'Solid effort. Go again.');
+        return const _Grade(
+            '😤', 'So Close!', 'Solid effort. Go again.');
       }
       if (score >= 5) {
         return const _Grade(
             '💪', 'Keep Going', 'Every session builds the muscle.');
       }
-      return const _Grade('🧠', 'Just Starting', 'Focus and try again.');
+      return const _Grade(
+          '🧠', 'Just Starting', 'Focus and try again.');
     }
     final acc = gs.accuracy;
     if (acc >= 0.95) {
@@ -526,7 +544,8 @@ class _ResultScreenState extends State<ResultScreen>
     if (acc >= 0.60) {
       return const _Grade('💪', 'Getting There', 'Keep grinding.');
     }
-    return const _Grade('🧠', 'Keep Practicing', 'Every rep counts.');
+    return const _Grade(
+        '🧠', 'Keep Practicing', 'Every rep counts.');
   }
 }
 

@@ -3,8 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import '../theme/app_theme.dart';
 import '../main.dart';
-import '../services/ad_service.dart';
-import 'pro_paywall.dart';
+import '../services/notification_service.dart';
 
 class AppDrawer extends StatefulWidget {
   const AppDrawer({super.key});
@@ -18,7 +17,6 @@ class _AppDrawerState extends State<AppDrawer> {
 
   bool get _isDark => themeNotifier.value == ThemeMode.dark;
 
-  // ── Theme-aware helpers ───────────────────────────────────────
   Color get _bg => _isDark ? AppTheme.background : AppTheme.lightBackground;
   Color get _surface => _isDark ? AppTheme.surface : AppTheme.lightSurface;
   Color get _surfaceHigh =>
@@ -31,6 +29,13 @@ class _AppDrawerState extends State<AppDrawer> {
   Color get _textMuted =>
       _isDark ? AppTheme.textMuted : AppTheme.lightTextMuted;
 
+  // ── ADDED: read persisted state on init ───────────────────────
+  @override
+  void initState() {
+    super.initState();
+    _notificationsEnabled = NotificationService.instance.isEnabled;
+  }
+
   @override
   Widget build(BuildContext context) {
     return ValueListenableBuilder<ThemeMode>(
@@ -42,10 +47,7 @@ class _AppDrawerState extends State<AppDrawer> {
           child: SafeArea(
             child: Column(
               children: [
-                // ── Header ──────────────────────────────────────
                 _buildHeader(),
-
-                // ── Content ─────────────────────────────────────
                 Expanded(
                   child: SingleChildScrollView(
                     physics: const BouncingScrollPhysics(),
@@ -53,20 +55,14 @@ class _AppDrawerState extends State<AppDrawer> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // Pro upgrade banner (hidden if already pro)
-                        if (!AdService.instance.isPro) ...[
-                          _buildProBanner(),
-                          const SizedBox(height: 24),
-                        ],
-
-                        // Appearance section
+                        // Appearance
                         _sectionLabel('APPEARANCE'),
                         const SizedBox(height: 10),
                         _buildThemeToggle(),
 
                         const SizedBox(height: 24),
 
-                        // App section
+                        // App
                         _sectionLabel('APP'),
                         const SizedBox(height: 10),
                         _buildTileGroup([
@@ -74,9 +70,14 @@ class _AppDrawerState extends State<AppDrawer> {
                             icon: Icons.notifications_rounded,
                             iconColor: AppTheme.accent,
                             label: 'Notifications',
-                            trailing: _buildSwitch(_notificationsEnabled, (v) {
+                            // ── CHANGED: wired to NotificationService ──
+                            trailing:
+                                _buildSwitch(_notificationsEnabled, (v) async {
                               HapticFeedback.selectionClick();
-                              setState(() => _notificationsEnabled = v);
+                              await NotificationService.instance.setEnabled(v);
+                              if (mounted) {
+                                setState(() => _notificationsEnabled = v);
+                              }
                             }),
                           ),
                           _DrawerTileData(
@@ -95,7 +96,7 @@ class _AppDrawerState extends State<AppDrawer> {
 
                         const SizedBox(height: 24),
 
-                        // Legal section
+                        // Legal
                         _sectionLabel('LEGAL'),
                         const SizedBox(height: 10),
                         _buildTileGroup([
@@ -118,8 +119,6 @@ class _AppDrawerState extends State<AppDrawer> {
                     ),
                   ),
                 ),
-
-                // ── Footer ──────────────────────────────────────
                 _buildFooter(),
               ],
             ),
@@ -129,7 +128,6 @@ class _AppDrawerState extends State<AppDrawer> {
     );
   }
 
-  // ── Header ────────────────────────────────────────────────────
   Widget _buildHeader() {
     return Container(
       width: double.infinity,
@@ -141,7 +139,6 @@ class _AppDrawerState extends State<AppDrawer> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Logo mark
           Container(
             width: 52,
             height: 52,
@@ -199,7 +196,6 @@ class _AppDrawerState extends State<AppDrawer> {
     );
   }
 
-  // ── Section Label ─────────────────────────────────────────────
   Widget _sectionLabel(String label) {
     return Text(
       label,
@@ -212,7 +208,6 @@ class _AppDrawerState extends State<AppDrawer> {
     );
   }
 
-  // ── Theme Toggle ──────────────────────────────────────────────
   Widget _buildThemeToggle() {
     final isDark = _isDark;
     return GestureDetector(
@@ -230,7 +225,6 @@ class _AppDrawerState extends State<AppDrawer> {
         ),
         child: Row(
           children: [
-            // Icon with gradient bg
             Container(
               width: 40,
               height: 40,
@@ -277,7 +271,6 @@ class _AppDrawerState extends State<AppDrawer> {
                 ],
               ),
             ),
-            // Animated pill toggle
             AnimatedContainer(
               duration: const Duration(milliseconds: 250),
               curve: Curves.easeInOut,
@@ -322,7 +315,6 @@ class _AppDrawerState extends State<AppDrawer> {
     );
   }
 
-  // ── Tile Group ────────────────────────────────────────────────
   Widget _buildTileGroup(List<_DrawerTileData> tiles) {
     return Container(
       decoration: BoxDecoration(
@@ -339,12 +331,7 @@ class _AppDrawerState extends State<AppDrawer> {
             children: [
               _buildTile(tile),
               if (!isLast)
-                Divider(
-                  height: 1,
-                  thickness: 1,
-                  color: _border,
-                  indent: 58,
-                ),
+                Divider(height: 1, thickness: 1, color: _border, indent: 58),
             ],
           );
         }).toList(),
@@ -369,7 +356,6 @@ class _AppDrawerState extends State<AppDrawer> {
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
           child: Row(
             children: [
-              // Icon badge
               Container(
                 width: 36,
                 height: 36,
@@ -403,7 +389,6 @@ class _AppDrawerState extends State<AppDrawer> {
     );
   }
 
-  // ── Switch ────────────────────────────────────────────────────
   Widget _buildSwitch(bool value, ValueChanged<bool> onChanged) {
     return Transform.scale(
       scale: 0.85,
@@ -419,73 +404,6 @@ class _AppDrawerState extends State<AppDrawer> {
     );
   }
 
-  // ── Pro Banner ────────────────────────────────────────────────
-  Widget _buildProBanner() {
-    return GestureDetector(
-      onTap: () {
-        HapticFeedback.selectionClick();
-        Navigator.pop(context);
-        ProPaywall.show(context);
-      },
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              AppTheme.accent.withOpacity(0.15),
-              const Color(0xFF7B5CF6).withOpacity(0.15),
-            ],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: AppTheme.accent.withOpacity(0.3)),
-        ),
-        child: Row(
-          children: [
-            Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: [AppTheme.accent, Color(0xFF7B5CF6)],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: const Icon(Icons.workspace_premium_rounded,
-                  color: Colors.white, size: 20),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Upgrade to Pro',
-                    style: AppTheme.geist(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w700,
-                      color: _textPrimary,
-                    ),
-                  ),
-                  Text(
-                    'No ads · Zen Mode · \$2.99 once',
-                    style: AppTheme.geist(fontSize: 11, color: _textSecondary),
-                  ),
-                ],
-              ),
-            ),
-            Icon(Icons.arrow_forward_ios_rounded,
-                color: AppTheme.accent, size: 14),
-          ],
-        ),
-      ),
-    );
-  }
-
-  // ── Footer ────────────────────────────────────────────────────
   Widget _buildFooter() {
     return Container(
       padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
@@ -506,25 +424,18 @@ class _AppDrawerState extends State<AppDrawer> {
             ),
           ),
           const SizedBox(width: 4),
-          Text(
-            '❤️',
-            style: const TextStyle(fontSize: 12),
-          ),
+          const Text('❤️', style: TextStyle(fontSize: 12)),
         ],
       ),
     );
   }
 
-  // ── Actions ───────────────────────────────────────────────────
   void _shareApp() {
     Navigator.pop(context);
-    // TODO: integrate share_plus package
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(
-          'Share coming soon!',
-          style: AppTheme.geist(fontSize: 13, color: Colors.white),
-        ),
+        content: Text('Share coming soon!',
+            style: AppTheme.geist(fontSize: 13, color: Colors.white)),
         backgroundColor: AppTheme.surface,
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -535,13 +446,10 @@ class _AppDrawerState extends State<AppDrawer> {
 
   void _rateApp() {
     Navigator.pop(context);
-    // TODO: integrate in_app_review package
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(
-          'Rating coming soon!',
-          style: AppTheme.geist(fontSize: 13, color: Colors.white),
-        ),
+        content: Text('Rating coming soon!',
+            style: AppTheme.geist(fontSize: 13, color: Colors.white)),
         backgroundColor: AppTheme.surface,
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -552,13 +460,10 @@ class _AppDrawerState extends State<AppDrawer> {
 
   void _openUrl(String page) {
     Navigator.pop(context);
-    // ── REPLACE THESE URLs with your actual GitHub raw links ──────────────
-    // Format: https://raw.githubusercontent.com/YOUR_USERNAME/YOUR_REPO/main/legal/privacy_policy.html
     const privacyUrl =
         'https://blueocan.github.io/quick_math/legal/privacy_policy.html';
     const termsUrl =
         'https://blueocan.github.io/quick_math/legal/terms_of_service.html';
-    // ─────────────────────────────────────────────────────────────────────
 
     final url = page == 'privacy' ? privacyUrl : termsUrl;
     final title = page == 'privacy' ? 'Privacy Policy' : 'Terms of Service';
@@ -586,7 +491,7 @@ class _DrawerTileData {
   });
 }
 
-// ── Legal WebView screen ──────────────────────────────────────────────────────
+// ── Legal WebView ─────────────────────────────────────────────────────────────
 class _LegalWebView extends StatefulWidget {
   final String title;
   final String url;
@@ -600,9 +505,6 @@ class _LegalWebViewState extends State<_LegalWebView> {
   bool _loading = true;
   bool _hasError = false;
 
-  // We use a simple WebView via the webview_flutter package.
-  // If you haven't added it yet, add to pubspec.yaml:
-  //   webview_flutter: ^4.4.2
   late final _controller = WebViewController()
     ..setJavaScriptMode(JavaScriptMode.unrestricted)
     ..setNavigationDelegate(NavigationDelegate(

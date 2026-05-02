@@ -4,12 +4,17 @@ import 'theme/app_theme.dart';
 import 'screens/splash_screen.dart';
 import 'services/ad_service.dart';
 import 'services/stats_service.dart';
+import 'services/notification_service.dart';
 
 final ValueNotifier<ThemeMode> themeNotifier = ValueNotifier(ThemeMode.light);
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+
+  SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+  ]);
+
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
@@ -21,6 +26,9 @@ void main() async {
 
   await AdService.instance.init();
   await StatsService.instance.init();
+  await NotificationService.instance.init();
+
+  await NotificationService.instance.sendTestNotification();
 
   runApp(const MathVibeApp());
 }
@@ -45,6 +53,7 @@ class MathVibeApp extends StatelessWidget {
                 mode == ThemeMode.dark ? Brightness.light : Brightness.dark,
           ),
         );
+
         return MaterialApp(
           title: 'The Math Vibe',
           debugShowCheckedModeBanner: false,
