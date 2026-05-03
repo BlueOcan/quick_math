@@ -3,7 +3,6 @@ import 'package:flutter/services.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import '../theme/app_theme.dart';
 import '../main.dart';
-import '../services/notification_service.dart';
 
 class AppDrawer extends StatefulWidget {
   const AppDrawer({super.key});
@@ -13,8 +12,6 @@ class AppDrawer extends StatefulWidget {
 }
 
 class _AppDrawerState extends State<AppDrawer> {
-  bool _notificationsEnabled = true;
-
   bool get _isDark => themeNotifier.value == ThemeMode.dark;
 
   Color get _bg => _isDark ? AppTheme.background : AppTheme.lightBackground;
@@ -28,13 +25,6 @@ class _AppDrawerState extends State<AppDrawer> {
       _isDark ? AppTheme.textSecondary : AppTheme.lightTextSecondary;
   Color get _textMuted =>
       _isDark ? AppTheme.textMuted : AppTheme.lightTextMuted;
-
-  // ── ADDED: read persisted state on init ───────────────────────
-  @override
-  void initState() {
-    super.initState();
-    _notificationsEnabled = NotificationService.instance.isEnabled;
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -66,20 +56,6 @@ class _AppDrawerState extends State<AppDrawer> {
                         _sectionLabel('APP'),
                         const SizedBox(height: 10),
                         _buildTileGroup([
-                          _DrawerTileData(
-                            icon: Icons.notifications_rounded,
-                            iconColor: AppTheme.accent,
-                            label: 'Notifications',
-                            // ── CHANGED: wired to NotificationService ──
-                            trailing:
-                                _buildSwitch(_notificationsEnabled, (v) async {
-                              HapticFeedback.selectionClick();
-                              await NotificationService.instance.setEnabled(v);
-                              if (mounted) {
-                                setState(() => _notificationsEnabled = v);
-                              }
-                            }),
-                          ),
                           _DrawerTileData(
                             icon: Icons.share_rounded,
                             iconColor: AppTheme.opDiv,
@@ -385,21 +361,6 @@ class _AppDrawerState extends State<AppDrawer> {
             ],
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildSwitch(bool value, ValueChanged<bool> onChanged) {
-    return Transform.scale(
-      scale: 0.85,
-      child: Switch(
-        value: value,
-        onChanged: onChanged,
-        activeColor: AppTheme.accent,
-        activeTrackColor: AppTheme.accent.withOpacity(0.3),
-        inactiveThumbColor: _textMuted,
-        inactiveTrackColor: _surfaceHigh,
-        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
       ),
     );
   }

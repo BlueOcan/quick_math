@@ -43,6 +43,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
+    QuestionGenerator.resetSession();
     _gameState = GameState(totalQuestions: widget.session.totalQuestions);
 
     _questionCtrl = AnimationController(
@@ -94,7 +95,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
       setState(() => _secondsLeft--);
       if (_secondsLeft <= 0) {
         t.cancel();
-        _processAnswer(correct: false);
+        if (!_showFeedback) _processAnswer(correct: false);
       }
     });
   }

@@ -16,10 +16,6 @@ dependencies:
   share_plus: ^9.0.0
   path_provider: ^2.1.4
   webview_flutter: ^4.4.2
-  flutter_local_notifications: ^17.2.2
-  timezone: ^0.9.4
-  flutter_timezone: ^2.1.0
-  
 
 dev_dependencies:
   flutter_test:
@@ -38,4 +34,4 @@ flutter:
 flutter_icons:
   android: true
   ios: true
-  image_path: "assets/images/logo.png"    
+  image_path: "assets/images/logo.png"
