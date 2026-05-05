@@ -35,6 +35,7 @@ class _WordGameScreenState extends State<WordGameScreen>
   int _correct = 0;
   int _streak = 0;
   int _bestStreak = 0;
+  final List<bool> _history = []; // ── NEW: tracks each answer
 
   // ── Answer state ──────────────────────────────────────────────
   String? _selectedOption;
@@ -117,6 +118,8 @@ class _WordGameScreenState extends State<WordGameScreen>
     final q = _questions[_qIndex];
     final correct = chosen == q.correct;
 
+    _history.add(correct); // ── NEW: record result
+
     setState(() {
       _selectedOption = chosen;
       _answered = true;
@@ -161,6 +164,7 @@ class _WordGameScreenState extends State<WordGameScreen>
         category: widget.category,
         difficulty: widget.difficulty,
         totalQuestions: widget.totalQuestions,
+        history: _history, // ── NEW: pass history
       ),
       transitionsBuilder: (_, anim, __, child) =>
           FadeTransition(opacity: anim, child: child),
@@ -236,7 +240,6 @@ class _WordGameScreenState extends State<WordGameScreen>
             isDark ? AppTheme.textSecondary : AppTheme.lightTextSecondary;
         final tm = isDark ? AppTheme.textMuted : AppTheme.lightTextMuted;
 
-        // Loading state
         if (_loading) {
           return Scaffold(
             backgroundColor: bg,
@@ -244,7 +247,6 @@ class _WordGameScreenState extends State<WordGameScreen>
           );
         }
 
-        // Empty state (JSON not filled yet)
         if (_questions.isEmpty) {
           return Scaffold(
             backgroundColor: bg,
@@ -386,7 +388,6 @@ class _WordGameScreenState extends State<WordGameScreen>
                         ],
                       ),
                       child: Column(children: [
-                        // Category badge
                         Container(
                           padding: const EdgeInsets.symmetric(
                               horizontal: 10, vertical: 4),
@@ -404,7 +405,6 @@ class _WordGameScreenState extends State<WordGameScreen>
                           ),
                         ),
                         const SizedBox(height: 16),
-                        // Question text
                         Text(
                           q.question,
                           textAlign: TextAlign.center,
@@ -529,7 +529,6 @@ class _OptionButton extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           child: Row(children: [
-            // Letter badge
             Container(
               width: 36,
               height: 36,

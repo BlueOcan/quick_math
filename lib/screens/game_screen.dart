@@ -354,26 +354,32 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     );
   }
 
-  // ── Stats row ──────────────────────────────────────────────────
+  // ── Stats row — FIXED: each chip wrapped in Expanded for equal width ───
   Widget _buildStatsRow(Color textPrimary, Color textSecondary) {
     return Row(
       children: [
-        StatChip(
-          label: 'Score',
-          value: '${_gameState.score}',
-          valueColor: AppTheme.accent,
+        Expanded(
+          child: StatChip(
+            label: 'Score',
+            value: '${_gameState.score}',
+            valueColor: AppTheme.accent,
+          ),
         ),
         const SizedBox(width: 8),
-        StatChip(
-          label: 'Streak',
-          value: '🔥 ${_gameState.streak}',
-          valueColor: _gameState.streak >= 3 ? AppTheme.amber : textPrimary,
+        Expanded(
+          child: StatChip(
+            label: 'Streak',
+            value: '🔥 ${_gameState.streak}',
+            valueColor: _gameState.streak >= 3 ? AppTheme.amber : textPrimary,
+          ),
         ),
         const SizedBox(width: 8),
-        StatChip(
-          label: 'Best',
-          value: '${_gameState.bestStreak}',
-          valueColor: textSecondary,
+        Expanded(
+          child: StatChip(
+            label: 'Best',
+            value: '${_gameState.bestStreak}',
+            valueColor: textSecondary,
+          ),
         ),
       ],
     );
@@ -474,7 +480,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
         isDark ? AppTheme.textSecondary : AppTheme.lightTextSecondary;
     showDialog(
       context: context,
-      barrierDismissible: false, // prevent timer stuck by tapping outside
+      barrierDismissible: false,
       builder: (ctx) => AlertDialog(
         backgroundColor: surface,
         shape: RoundedRectangleBorder(
@@ -512,7 +518,6 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
         ],
       ),
     ).then((_) {
-      // If dialog closed by any other means, always resume timer
       if (mounted && _timerPaused) setState(() => _timerPaused = false);
     });
   }
