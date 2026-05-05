@@ -116,7 +116,10 @@ class AdService {
       },
     );
 
-    return completer.future;
+    return completer.future.timeout(
+      const Duration(seconds: 30),
+      onTimeout: () => false,
+    );
   }
 
   void _loadRewarded() {

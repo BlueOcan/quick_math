@@ -56,13 +56,14 @@ class _ResultScreenState extends State<ResultScreen>
         .animate(CurvedAnimation(parent: _scoreCtrl, curve: Curves.easeOut));
 
     Future.delayed(const Duration(milliseconds: 80), () async {
+      if (!mounted) return;
       _mainCtrl.forward();
       _scoreCtrl.forward();
-      AdService.instance.maybeShowInterstitial(context);
       await StatsService.instance.saveSession(
         score: widget.gameState.score,
         correctAnswers: widget.gameState.correctAnswers,
       );
+      if (mounted) AdService.instance.maybeShowInterstitial(context);
     });
   }
 

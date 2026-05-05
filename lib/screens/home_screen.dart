@@ -70,12 +70,6 @@ class _HomeScreenState extends State<HomeScreen>
   bool get _isDark => themeNotifier.value == ThemeMode.dark;
 
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    if (mounted) setState(() {});
-  }
-
-  @override
   Widget build(BuildContext context) {
     return ValueListenableBuilder<ThemeMode>(
       valueListenable: themeNotifier,
