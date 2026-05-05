@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.quick_math"
+    namespace = "com.thethreezero.mathvibe"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 

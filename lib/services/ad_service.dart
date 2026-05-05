@@ -11,10 +11,10 @@ import 'package:shared_preferences/shared_preferences.dart';
 class AdIds {
   // ── Android ───────────────────────────────────────────────────
   static const String _androidRewarded =
-      'ca-app-pub-3940256099942544/5224354917';
+      'ca-app-pub-8934941458065542/8712986739';
   static const String _androidInterstitial =
-      'ca-app-pub-3940256099942544/1033173712';
-  static const String _androidBanner = 'ca-app-pub-3940256099942544/6300978111';
+      'ca-app-pub-8934941458065542/6134835563';
+  static const String _androidBanner = 'ca-app-pub-8934941458065542/7208333371';
 
   // ── iOS ───────────────────────────────────────────────────────
   static const String _iosRewarded = 'ca-app-pub-3940256099942544/1712485313';

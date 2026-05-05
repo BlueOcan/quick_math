@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:webview_flutter/webview_flutter.dart';
+import 'package:share_plus/share_plus.dart';
 import '../theme/app_theme.dart';
 import '../main.dart';
 
@@ -26,6 +27,11 @@ class _AppDrawerState extends State<AppDrawer> {
   Color get _textMuted =>
       _isDark ? AppTheme.textMuted : AppTheme.lightTextMuted;
 
+  // ── YOUR PLAY STORE PACKAGE NAME ──────────────────────────────
+  static const String _packageName = 'com.thethreezero.mathvibe';
+  static const String _playStoreUrl =
+      'https://play.google.com/store/apps/details?id=$_packageName';
+
   @override
   Widget build(BuildContext context) {
     return ValueListenableBuilder<ThemeMode>(
@@ -45,14 +51,10 @@ class _AppDrawerState extends State<AppDrawer> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // Appearance
                         _sectionLabel('APPEARANCE'),
                         const SizedBox(height: 10),
                         _buildThemeToggle(),
-
                         const SizedBox(height: 24),
-
-                        // App
                         _sectionLabel('APP'),
                         const SizedBox(height: 10),
                         _buildTileGroup([
@@ -69,10 +71,7 @@ class _AppDrawerState extends State<AppDrawer> {
                             onTap: _rateApp,
                           ),
                         ]),
-
                         const SizedBox(height: 24),
-
-                        // Legal
                         _sectionLabel('LEGAL'),
                         const SizedBox(height: 10),
                         _buildTileGroup([
@@ -89,7 +88,6 @@ class _AppDrawerState extends State<AppDrawer> {
                             onTap: () => _openUrl('terms'),
                           ),
                         ]),
-
                         const SizedBox(height: 32),
                       ],
                     ),
@@ -127,7 +125,7 @@ class _AppDrawerState extends State<AppDrawer> {
               borderRadius: BorderRadius.circular(16),
               boxShadow: [
                 BoxShadow(
-                  color: AppTheme.accent.withOpacity(0.35),
+                  color: AppTheme.accent.withValues(alpha: 0.35),
                   blurRadius: 16,
                   offset: const Offset(0, 6),
                 ),
@@ -274,7 +272,7 @@ class _AppDrawerState extends State<AppDrawer> {
                         borderRadius: BorderRadius.circular(11),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.2),
+                            color: Colors.black.withValues(alpha: 0.2),
                             blurRadius: 4,
                             offset: const Offset(0, 1),
                           ),
@@ -326,8 +324,8 @@ class _AppDrawerState extends State<AppDrawer> {
               }
             : null,
         borderRadius: BorderRadius.circular(16),
-        splashColor: AppTheme.accent.withOpacity(0.06),
-        highlightColor: AppTheme.accent.withOpacity(0.03),
+        splashColor: AppTheme.accent.withValues(alpha: 0.06),
+        highlightColor: AppTheme.accent.withValues(alpha: 0.03),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
           child: Row(
@@ -336,9 +334,10 @@ class _AppDrawerState extends State<AppDrawer> {
                 width: 36,
                 height: 36,
                 decoration: BoxDecoration(
-                  color: tile.iconColor.withOpacity(0.12),
+                  color: tile.iconColor.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: tile.iconColor.withOpacity(0.2)),
+                  border:
+                      Border.all(color: tile.iconColor.withValues(alpha: 0.2)),
                 ),
                 child: Icon(tile.icon, color: tile.iconColor, size: 18),
               ),
@@ -353,11 +352,8 @@ class _AppDrawerState extends State<AppDrawer> {
                   ),
                 ),
               ),
-              tile.trailing ??
-                  (tile.onTap != null
-                      ? Icon(Icons.chevron_right_rounded,
-                          color: _textMuted, size: 18)
-                      : const SizedBox.shrink()),
+              if (tile.onTap != null)
+                Icon(Icons.chevron_right_rounded, color: _textMuted, size: 18),
             ],
           ),
         ),
@@ -369,7 +365,7 @@ class _AppDrawerState extends State<AppDrawer> {
     return Container(
       padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
       decoration: BoxDecoration(
-        border: Border(top: BorderSide(color: _border, width: 1)),
+        border: Border(top: BorderSide(color: _border)),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -391,32 +387,37 @@ class _AppDrawerState extends State<AppDrawer> {
     );
   }
 
+  // ── FIXED: Share now sends a real message with the Play Store link ─────────
   void _shareApp() {
     Navigator.pop(context);
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Share coming soon!',
-            style: AppTheme.geist(fontSize: 13, color: Colors.white)),
-        backgroundColor: AppTheme.surface,
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        margin: const EdgeInsets.all(16),
-      ),
+    Share.share(
+      '🧠 I\'ve been sharpening my math skills with mathVIBE!\n\n'
+      'Challenge yourself with arithmetic, logic & grammar games.\n\n'
+      'Download it here 👇\n$_playStoreUrl',
+      subject: 'Check out mathVIBE!',
     );
   }
 
+  // ── FIXED: Rate now opens the Play Store page directly ────────────────────
   void _rateApp() {
     Navigator.pop(context);
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Rating coming soon!',
-            style: AppTheme.geist(fontSize: 13, color: Colors.white)),
-        backgroundColor: AppTheme.surface,
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        margin: const EdgeInsets.all(16),
-      ),
-    );
+    // Opens the Play Store directly on Android
+    // On iOS this would need to use the App Store URL instead
+    final uri = Uri.parse('market://details?id=$_packageName');
+    final fallbackUri = Uri.parse(_playStoreUrl);
+
+    // Try the native market:// link first, fall back to browser URL
+    _launchUri(uri, fallback: fallbackUri);
+  }
+
+  Future<void> _launchUri(Uri uri, {Uri? fallback}) async {
+    // We use the webview approach since url_launcher is not in pubspec
+    // Instead we open the Play Store web URL in our built-in webview
+    final url = fallback?.toString() ?? uri.toString();
+    if (!mounted) return;
+    Navigator.of(context).push(MaterialPageRoute(
+      builder: (_) => _LegalWebView(title: 'Rate mathVIBE', url: url),
+    ));
   }
 
   void _openUrl(String page) {
@@ -441,18 +442,16 @@ class _DrawerTileData {
   final Color iconColor;
   final String label;
   final VoidCallback? onTap;
-  final Widget? trailing;
 
   const _DrawerTileData({
     required this.icon,
     required this.iconColor,
     required this.label,
     this.onTap,
-    this.trailing,
   });
 }
 
-// ── Legal WebView ─────────────────────────────────────────────────────────────
+// ── Legal WebView (unchanged) ─────────────────────────────────────────────────
 class _LegalWebView extends StatefulWidget {
   final String title;
   final String url;

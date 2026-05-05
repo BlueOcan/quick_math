@@ -1,4 +1,4 @@
-package com.example.quick_math
+package com.thethreezero.mathvibe
 
 import io.flutter.embedding.android.FlutterActivity
 
