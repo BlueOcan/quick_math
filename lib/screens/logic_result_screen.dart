@@ -55,6 +55,8 @@ class _LogicResultScreenState extends State<LogicResultScreen>
 
   final GlobalKey _shareKey = GlobalKey();
   bool _isSharing = false;
+  // ADD THIS LINE BELOW:
+  bool _isPlayingAgain = false;
 
   Color get _color => _logicColors[widget.category]!;
 
@@ -441,16 +443,16 @@ class _LogicResultScreenState extends State<LogicResultScreen>
           children: [
             Expanded(
               child: ElevatedButton.icon(
-                onPressed: _playAgain,
-                icon: const Icon(Icons.replay_rounded, size: 18),
-                label: const Text('Play Again'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: _color,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16)),
-                ),
+                onPressed: _isPlayingAgain ? null : _playAgain,
+                icon: _isPlayingAgain
+                    ? const SizedBox(
+                        width: 16,
+                        height: 16,
+                        child: CircularProgressIndicator(
+                            strokeWidth: 2, color: Colors.white),
+                      )
+                    : const Icon(Icons.replay_rounded, size: 18),
+                label: Text(_isPlayingAgain ? 'Loading...' : 'Play Again'),
               ),
             ),
             const SizedBox(width: 10),
@@ -516,23 +518,27 @@ class _LogicResultScreenState extends State<LogicResultScreen>
   }
 
   Future<void> _playAgain() async {
-    if (!mounted) return;
+    if (_isPlayingAgain) return;
+    setState(() => _isPlayingAgain = true);
 
-    if (!AdService.instance.isPro) {
-      await AdService.instance.showRewardedAd(context);
+    try {
+      if (!AdService.instance.isPro) {
+        await AdService.instance.showRewardedAd(context);
+      }
       if (!mounted) return;
+      Navigator.of(context).pushReplacement(PageRouteBuilder(
+        pageBuilder: (_, anim, __) => LogicGameScreen(
+          category: widget.category,
+          difficulty: widget.difficulty,
+          totalQuestions: widget.totalQuestions,
+        ),
+        transitionsBuilder: (_, anim, __, child) =>
+            FadeTransition(opacity: anim, child: child),
+        transitionDuration: const Duration(milliseconds: 280),
+      ));
+    } finally {
+      if (mounted) setState(() => _isPlayingAgain = false);
     }
-
-    Navigator.of(context).pushReplacement(PageRouteBuilder(
-      pageBuilder: (_, anim, __) => LogicGameScreen(
-        category: widget.category,
-        difficulty: widget.difficulty,
-        totalQuestions: widget.totalQuestions,
-      ),
-      transitionsBuilder: (_, anim, __, child) =>
-          FadeTransition(opacity: anim, child: child),
-      transitionDuration: const Duration(milliseconds: 280),
-    ));
   }
 
   void _goHome() {

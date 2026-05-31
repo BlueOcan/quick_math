@@ -69,6 +69,14 @@ class _HomeScreenState extends State<HomeScreen>
 
   bool get _isDark => themeNotifier.value == ThemeMode.dark;
 
+  // ── FIXED: smart number formatter ─────────────────────────────
+  String _formatNum(int n) {
+    if (n >= 1000000) return '${(n / 1000000).toStringAsFixed(1)}M';
+    if (n >= 10000) return '${(n / 1000).toStringAsFixed(0)}K';
+    if (n >= 1000) return '${(n / 1000).toStringAsFixed(1)}K';
+    return '$n';
+  }
+
   @override
   Widget build(BuildContext context) {
     return ValueListenableBuilder<ThemeMode>(
@@ -85,8 +93,6 @@ class _HomeScreenState extends State<HomeScreen>
           key: _scaffoldKey,
           backgroundColor: bg,
           drawer: const AppDrawer(),
-
-          // ── Sticky bottom banner ad ──────────────────────────────
           bottomNavigationBar: _bannerLoaded && _bannerAd != null
               ? SafeArea(
                   child: SizedBox(
@@ -96,7 +102,6 @@ class _HomeScreenState extends State<HomeScreen>
                   ),
                 )
               : const SizedBox.shrink(),
-
           body: SafeArea(
             child: FadeTransition(
               opacity: _fadeAnim,
@@ -105,12 +110,13 @@ class _HomeScreenState extends State<HomeScreen>
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // ── FIXED HEADER ─────────────────────────────────
+                    // ── HEADER ────────────────────────────────────────
                     Padding(
                       padding: const EdgeInsets.fromLTRB(24, 36, 24, 0),
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
+                          // Menu button
                           GestureDetector(
                             onTap: () =>
                                 _scaffoldKey.currentState?.openDrawer(),
@@ -127,25 +133,17 @@ class _HomeScreenState extends State<HomeScreen>
                             ),
                           ),
                           const SizedBox(width: 12),
-                          VibeLogo(fontSize: 26, isDark: isDark),
-                          const Spacer(), // 👈 pushes coin away from logo
 
-                          const SizedBox(width: 10),
-                          // ── ONLY COINS PILL (high score removed) ──
-                          Flexible(
-                            child: ConstrainedBox(
-                              constraints: const BoxConstraints(maxWidth: 120),
-                              child: _GamePill(
-                                icon: Icons.monetization_on_rounded,
-                                iconGradient: const [
-                                  Color(0xFFFBBF24),
-                                  Color(0xFFF59E0B),
-                                ],
-                                value: _formatNum(StatsService.instance.coins),
-                                isDark: isDark,
-                                isGold: true,
-                              ),
-                            ),
+                          // Logo — takes only what it needs
+                          VibeLogo(fontSize: 26, isDark: isDark),
+
+                          // Spacer pushes coin pill to the right
+                          const Spacer(),
+
+                          // ── FIXED COIN PILL ──────────────────────
+                          _CoinPill(
+                            value: _formatNum(StatsService.instance.coins),
+                            isDark: isDark,
                           ),
                         ],
                       ),
@@ -160,7 +158,7 @@ class _HomeScreenState extends State<HomeScreen>
                           children: [
                             const SizedBox(height: 32),
 
-                            // ── Arithmetic label ───────────────────────
+                            // ── Arithmetic ─────────────────────────────
                             Text(
                               'Arithmetic',
                               style: AppTheme.geist(
@@ -171,10 +169,8 @@ class _HomeScreenState extends State<HomeScreen>
                                     : AppTheme.lightTextPrimary,
                               ),
                             ),
-
                             const SizedBox(height: 12),
 
-                            // ── Row: Random + Training ─────────────────
                             IntrinsicHeight(
                               child: Row(
                                 crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -206,7 +202,7 @@ class _HomeScreenState extends State<HomeScreen>
 
                             const SizedBox(height: 16),
 
-                            // ── Grammar label ──────────────────────────
+                            // ── Grammar ────────────────────────────────
                             Text(
                               'Grammar',
                               style: AppTheme.geist(
@@ -217,10 +213,8 @@ class _HomeScreenState extends State<HomeScreen>
                                     : AppTheme.lightTextPrimary,
                               ),
                             ),
-
                             const SizedBox(height: 12),
 
-                            // ── Grammar card ───────────────────────────
                             _PrimaryCard(
                               icon: Icons.menu_book_rounded,
                               title: 'Grammar',
@@ -233,7 +227,7 @@ class _HomeScreenState extends State<HomeScreen>
 
                             const SizedBox(height: 16),
 
-                            // ── Logic label ────────────────────────────
+                            // ── Logic ──────────────────────────────────
                             Text(
                               'Logic',
                               style: AppTheme.geist(
@@ -244,10 +238,8 @@ class _HomeScreenState extends State<HomeScreen>
                                     : AppTheme.lightTextPrimary,
                               ),
                             ),
-
                             const SizedBox(height: 12),
 
-                            // ── Logic cards ────────────────────────────
                             Column(
                               children: LogicCategory.values.map((cat) {
                                 final color = {
@@ -284,13 +276,6 @@ class _HomeScreenState extends State<HomeScreen>
         );
       },
     );
-  }
-
-  String _formatNum(int n) {
-    if (n >= 1000000) return '${(n / 1000000).toStringAsFixed(1)}M';
-    if (n >= 10000) return '${(n / 1000).toStringAsFixed(0)}K';
-    if (n >= 1000) return '${(n / 1000).toStringAsFixed(1)}K';
-    return '$n';
   }
 
   void _startRandom() {
@@ -348,79 +333,63 @@ class _HomeScreenState extends State<HomeScreen>
   }
 }
 
-// ── Game Pill ─────────────────────────────────────────────────────────────────
-class _GamePill extends StatelessWidget {
-  final IconData icon;
-  final List<Color> iconGradient;
+// ── FIXED Coin Pill ───────────────────────────────────────────────────────────
+// Replaces the old _GamePill. This one never overflows — it shrinks the text
+// if needed and the pill width grows naturally with the content.
+class _CoinPill extends StatelessWidget {
   final String value;
   final bool isDark;
-  final bool isGold;
 
-  const _GamePill({
-    required this.icon,
-    required this.iconGradient,
-    required this.value,
-    required this.isDark,
-    this.isGold = false,
-  });
+  const _CoinPill({required this.value, required this.isDark});
 
   @override
   Widget build(BuildContext context) {
     const double h = 34;
-    const double iconSize = h;
-    const double iconInner = 16;
-    const double fontSize = 15;
-    const double radius = h / 2;
 
-    final pillBg = isGold
-        ? (isDark ? const Color(0xFF2A1F00) : const Color(0xFFFFF8E6))
-        : (isDark ? const Color(0xFF0F1A3A) : const Color(0xFFEEF2FF));
-    final pillBorder = isGold
-        ? (isDark ? const Color(0xFF6B4A00) : const Color(0xFFFBBF24))
-        : (isDark ? const Color(0xFF1E3A8A) : const Color(0xFF93C5FD));
-    final textColor = isGold
-        ? (isDark ? const Color(0xFFFBBF24) : const Color(0xFF92400E))
-        : (isDark ? const Color(0xFF93C5FD) : const Color(0xFF1D4ED8));
+    final pillBg = isDark ? const Color(0xFF2A1F00) : const Color(0xFFFFF8E6);
+    final pillBorder =
+        isDark ? const Color(0xFF6B4A00) : const Color(0xFFFBBF24);
+    final textColor =
+        isDark ? const Color(0xFFFBBF24) : const Color(0xFF92400E);
 
     return Container(
       height: h,
-      padding: const EdgeInsets.only(right: 10),
+      // ── KEY FIX: no maxWidth constraint, pill grows with content ──
+      padding: const EdgeInsets.only(left: 4, right: 12),
       decoration: BoxDecoration(
         color: pillBg,
-        borderRadius: BorderRadius.circular(radius),
+        borderRadius: BorderRadius.circular(h / 2),
         border: Border.all(color: pillBorder, width: 1.5),
       ),
       child: Row(
-        mainAxisSize: MainAxisSize.min,
+        mainAxisSize: MainAxisSize.min, // ← shrinks to content
         children: [
+          // Gold coin icon circle
           Container(
-            width: iconSize,
-            height: iconSize,
-            decoration: BoxDecoration(
+            width: h - 8,
+            height: h - 8,
+            decoration: const BoxDecoration(
               gradient: LinearGradient(
-                colors: iconGradient,
+                colors: [Color(0xFFFBBF24), Color(0xFFF59E0B)],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
               shape: BoxShape.circle,
-              border: Border.all(
-                  color: Colors.white.withValues(alpha: 0.25), width: 1.5),
             ),
-            child: Icon(icon, color: Colors.white, size: iconInner),
+            child: const Icon(
+              Icons.monetization_on_rounded,
+              color: Colors.white,
+              size: 16,
+            ),
           ),
           const SizedBox(width: 6),
-          Flexible(
-            child: FittedBox(
-              fit: BoxFit.scaleDown,
-              alignment: Alignment.centerLeft,
-              child: Text(
-                value,
-                style: AppTheme.mono(
-                  fontSize: fontSize,
-                  fontWeight: FontWeight.w700,
-                  color: textColor,
-                ),
-              ),
+          // ── Value text — never overflows ──────────────────────────
+          Text(
+            value,
+            style: AppTheme.mono(
+              fontSize: 15,
+              fontWeight: FontWeight.w700,
+              color: textColor,
             ),
           ),
         ],
@@ -678,7 +647,7 @@ class _LogicSessionSheet extends StatefulWidget {
 
 class _LogicSessionSheetState extends State<_LogicSessionSheet> {
   int _diff = 0;
-  int _qIdx = 0; // default 20
+  int _qIdx = 0;
 
   final _qOpts = const [10, 20, 30, 50];
 
@@ -748,7 +717,6 @@ class _LogicSessionSheetState extends State<_LogicSessionSheet> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Handle bar
           Center(
             child: Container(
               width: 36,
@@ -758,8 +726,6 @@ class _LogicSessionSheetState extends State<_LogicSessionSheet> {
             ),
           ),
           const SizedBox(height: 20),
-
-          // Header
           Row(children: [
             Container(
               width: 44,
@@ -790,8 +756,6 @@ class _LogicSessionSheetState extends State<_LogicSessionSheet> {
             ),
           ]),
           const SizedBox(height: 24),
-
-          // Difficulty
           Text('DIFFICULTY',
               style: AppTheme.geist(
                   fontSize: 10,
@@ -838,8 +802,6 @@ class _LogicSessionSheetState extends State<_LogicSessionSheet> {
             }),
           ),
           const SizedBox(height: 24),
-
-          // Questions
           Text('QUESTIONS',
               style: AppTheme.geist(
                   fontSize: 10,
@@ -879,8 +841,6 @@ class _LogicSessionSheetState extends State<_LogicSessionSheet> {
             }),
           ),
           const SizedBox(height: 28),
-
-          // Start button
           SizedBox(
             width: double.infinity,
             child: ElevatedButton.icon(

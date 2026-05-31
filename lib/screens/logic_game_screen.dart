@@ -6,6 +6,7 @@ import '../models/logic_question.dart';
 import '../services/stats_service.dart';
 import '../main.dart';
 import 'logic_result_screen.dart';
+import '../services/ad_service.dart';
 
 const _logicColors = {
   LogicCategory.numberSequence: Color(0xFF4A6BF3),
@@ -78,12 +79,17 @@ class _LogicGameScreenState extends State<LogicGameScreen>
 
     _startTimer();
     _cardCtrl.forward(from: 0);
+    AdService.instance.onAdWillShow = () => setState(() => _timerPaused = true);
+    AdService.instance.onAdDidDismiss =
+        () => setState(() => _timerPaused = false);
   }
 
   @override
   void dispose() {
     _timer?.cancel();
     _cardCtrl.dispose();
+    AdService.instance.onAdWillShow = null;
+    AdService.instance.onAdDidDismiss = null;
     super.dispose();
   }
 

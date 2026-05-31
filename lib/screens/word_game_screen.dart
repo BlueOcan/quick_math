@@ -6,6 +6,7 @@ import '../models/word_question.dart';
 import '../services/stats_service.dart';
 import '../main.dart';
 import 'word_result_screen.dart';
+import '../services/ad_service.dart';
 
 class WordGameScreen extends StatefulWidget {
   final WordCategory category;
@@ -70,12 +71,17 @@ class _WordGameScreenState extends State<WordGameScreen>
     _cardSlide = Tween<Offset>(begin: const Offset(0.04, 0), end: Offset.zero)
         .animate(CurvedAnimation(parent: _cardCtrl, curve: Curves.easeOut));
     _loadQuestions();
+    AdService.instance.onAdWillShow = () => setState(() => _timerPaused = true);
+    AdService.instance.onAdDidDismiss =
+        () => setState(() => _timerPaused = false);
   }
 
   @override
   void dispose() {
     _timer?.cancel();
     _cardCtrl.dispose();
+    AdService.instance.onAdWillShow = null;
+    AdService.instance.onAdDidDismiss = null;
     super.dispose();
   }
 

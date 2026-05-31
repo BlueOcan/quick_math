@@ -8,6 +8,7 @@ import '../widgets/common_widgets.dart';
 import '../widgets/number_keypad.dart';
 import '../main.dart';
 import 'result_screen.dart';
+import '../services/ad_service.dart';
 
 class GameScreen extends StatefulWidget {
   final GameSession session;
@@ -62,6 +63,11 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
 
     _generateQuestion();
     _startTimer();
+
+    // Pause timer when any ad appears, resume when it closes
+    AdService.instance.onAdWillShow = () => setState(() => _timerPaused = true);
+    AdService.instance.onAdDidDismiss =
+        () => setState(() => _timerPaused = false);
   }
 
   @override
@@ -69,6 +75,8 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     _timer?.cancel();
     _questionCtrl.dispose();
     _feedbackCtrl.dispose();
+    AdService.instance.onAdWillShow = null;
+    AdService.instance.onAdDidDismiss = null;
     super.dispose();
   }
 

@@ -4,19 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-// ─────────────────────────────────────────────────────────────────────────────
-// AD UNIT IDs — Google official test IDs
-// Replace with real AdMob IDs before publishing
-// ─────────────────────────────────────────────────────────────────────────────
 class AdIds {
-  // ── Android ───────────────────────────────────────────────────
   static const String _androidRewarded =
       'ca-app-pub-8934941458065542/8712986739';
   static const String _androidInterstitial =
       'ca-app-pub-8934941458065542/6134835563';
   static const String _androidBanner = 'ca-app-pub-8934941458065542/7208333371';
 
-  // ── iOS ───────────────────────────────────────────────────────
   static const String _iosRewarded = 'ca-app-pub-3940256099942544/1712485313';
   static const String _iosInterstitial =
       'ca-app-pub-3940256099942544/4411468910';
@@ -29,14 +23,10 @@ class AdIds {
   static String get banner => Platform.isIOS ? _iosBanner : _androidBanner;
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// AdService — singleton, call AdService.instance everywhere
-// ─────────────────────────────────────────────────────────────────────────────
 class AdService {
   AdService._();
   static final AdService instance = AdService._();
 
-  // ── State ──────────────────────────────────────────────────────
   bool _isPro = false;
   bool get isPro => _isPro;
 
@@ -47,13 +37,17 @@ class AdService {
   bool _rewardedLoading = false;
   bool _interstitialLoading = false;
 
-  // ── Init ───────────────────────────────────────────────────────
+  bool _isShowingAd = false;
+  bool get isShowingAd => _isShowingAd;
+
+  // ── TIMER PAUSE/RESUME CALLBACKS ───────────────────────────────
+  VoidCallback? onAdWillShow;
+  VoidCallback? onAdDidDismiss;
+
   Future<void> init() async {
     final prefs = await SharedPreferences.getInstance();
     _isPro = prefs.getBool('is_pro') ?? false;
-
     await MobileAds.instance.initialize();
-
     if (!_isPro) {
       _loadRewarded();
       _loadInterstitial();
@@ -63,10 +57,10 @@ class AdService {
   void dispose() {
     _rewardedAd?.dispose();
     _interstitialAd?.dispose();
+    onAdWillShow = null;
+    onAdDidDismiss = null;
   }
 
-  // ── Banner Ad ──────────────────────────────────────────────────
-  // Use BannerAdWidget() in your UI directly
   BannerAd createBanner() {
     return BannerAd(
       adUnitId: AdIds.banner,
@@ -76,9 +70,9 @@ class AdService {
     );
   }
 
-  // ── Rewarded Ad ────────────────────────────────────────────────
   Future<bool> showRewardedAd(BuildContext context) async {
     if (_isPro) return false;
+    if (_isShowingAd) return false;
 
     if (_rewardedAd == null) {
       if (context.mounted) {
@@ -93,18 +87,25 @@ class AdService {
       return false;
     }
 
+    _isShowingAd = true;
+    onAdWillShow?.call();
+
     final completer = Completer<bool>();
 
     _rewardedAd!.fullScreenContentCallback = FullScreenContentCallback(
       onAdDismissedFullScreenContent: (ad) {
         ad.dispose();
         _rewardedAd = null;
+        _isShowingAd = false;
+        onAdDidDismiss?.call();
         _loadRewarded();
         if (!completer.isCompleted) completer.complete(false);
       },
       onAdFailedToShowFullScreenContent: (ad, error) {
         ad.dispose();
         _rewardedAd = null;
+        _isShowingAd = false;
+        onAdDidDismiss?.call();
         _loadRewarded();
         if (!completer.isCompleted) completer.complete(false);
       },
@@ -118,7 +119,11 @@ class AdService {
 
     return completer.future.timeout(
       const Duration(seconds: 30),
-      onTimeout: () => false,
+      onTimeout: () {
+        _isShowingAd = false;
+        onAdDidDismiss?.call();
+        return false;
+      },
     );
   }
 
@@ -141,9 +146,9 @@ class AdService {
     );
   }
 
-  // ── Interstitial Ad ────────────────────────────────────────────
   Future<void> maybeShowInterstitial(BuildContext context) async {
     if (_isPro) return;
+    if (_isShowingAd) return;
 
     _sessionCount++;
     if (_sessionCount % 3 != 0) return;
@@ -153,15 +158,22 @@ class AdService {
       return;
     }
 
+    _isShowingAd = true;
+    onAdWillShow?.call();
+
     _interstitialAd!.fullScreenContentCallback = FullScreenContentCallback(
       onAdDismissedFullScreenContent: (ad) {
         ad.dispose();
         _interstitialAd = null;
+        _isShowingAd = false;
+        onAdDidDismiss?.call();
         _loadInterstitial();
       },
       onAdFailedToShowFullScreenContent: (ad, _) {
         ad.dispose();
         _interstitialAd = null;
+        _isShowingAd = false;
+        onAdDidDismiss?.call();
         _loadInterstitial();
       },
     );
@@ -188,7 +200,6 @@ class AdService {
     );
   }
 
-  // ── Set Pro manually (for future use) ─────────────────────────
   Future<void> setPro(bool value) async {
     _isPro = value;
     final prefs = await SharedPreferences.getInstance();

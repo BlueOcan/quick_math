@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../theme/app_theme.dart';
 import '../main.dart';
 
@@ -27,7 +28,6 @@ class _AppDrawerState extends State<AppDrawer> {
   Color get _textMuted =>
       _isDark ? AppTheme.textMuted : AppTheme.lightTextMuted;
 
-  // ── YOUR PLAY STORE PACKAGE NAME ──────────────────────────────
   static const String _packageName = 'com.thethreezero.mathvibe';
   static const String _playStoreUrl =
       'https://play.google.com/store/apps/details?id=$_packageName';
@@ -387,7 +387,7 @@ class _AppDrawerState extends State<AppDrawer> {
     );
   }
 
-  // ── FIXED: Share now sends a real message with the Play Store link ─────────
+  // ── FIXED: Share opens with real Play Store link ───────────────
   void _shareApp() {
     Navigator.pop(context);
     Share.share(
@@ -398,28 +398,30 @@ class _AppDrawerState extends State<AppDrawer> {
     );
   }
 
-  // ── FIXED: Rate now opens the Play Store page directly ────────────────────
-  void _rateApp() {
+  // ── FIXED: Rate opens native Play Store app directly ──────────
+  Future<void> _rateApp() async {
     Navigator.pop(context);
-    // Opens the Play Store directly on Android
-    // On iOS this would need to use the App Store URL instead
-    final uri = Uri.parse('market://details?id=$_packageName');
-    final fallbackUri = Uri.parse(_playStoreUrl);
 
-    // Try the native market:// link first, fall back to browser URL
-    _launchUri(uri, fallback: fallbackUri);
+    // market:// opens the Play Store app directly (Android)
+    final nativeUri = Uri.parse('market://details?id=$_packageName');
+    // Fallback: opens in browser if Play Store app not available
+    final webUri = Uri.parse(_playStoreUrl);
+
+    try {
+      // Try native Play Store first
+      if (await canLaunchUrl(nativeUri)) {
+        await launchUrl(nativeUri);
+      } else {
+        // Fall back to browser
+        await launchUrl(webUri, mode: LaunchMode.externalApplication);
+      }
+    } catch (_) {
+      // Last resort: open in browser
+      await launchUrl(webUri, mode: LaunchMode.externalApplication);
+    }
   }
 
-  Future<void> _launchUri(Uri uri, {Uri? fallback}) async {
-    // We use the webview approach since url_launcher is not in pubspec
-    // Instead we open the Play Store web URL in our built-in webview
-    final url = fallback?.toString() ?? uri.toString();
-    if (!mounted) return;
-    Navigator.of(context).push(MaterialPageRoute(
-      builder: (_) => _LegalWebView(title: 'Rate mathVIBE', url: url),
-    ));
-  }
-
+  // ── Legal pages still use WebView (correct behaviour) ─────────
   void _openUrl(String page) {
     Navigator.pop(context);
     const privacyUrl =
@@ -436,7 +438,7 @@ class _AppDrawerState extends State<AppDrawer> {
   }
 }
 
-// ── Data model for tiles ──────────────────────────────────────────────────────
+// ── Tile data model ───────────────────────────────────────────────────────────
 class _DrawerTileData {
   final IconData icon;
   final Color iconColor;

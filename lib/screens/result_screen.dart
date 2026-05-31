@@ -39,6 +39,9 @@ class _ResultScreenState extends State<ResultScreen>
   final GlobalKey _shareKey = GlobalKey();
   bool _isSharing = false;
 
+  // ADD THIS LINE BELOW:
+  bool _isPlayingAgain = false;
+
   @override
   void initState() {
     super.initState();
@@ -391,16 +394,16 @@ class _ResultScreenState extends State<ResultScreen>
           children: [
             Expanded(
               child: ElevatedButton.icon(
-                onPressed: _playAgain,
-                icon: const Icon(Icons.replay_rounded, size: 18),
-                label: const Text('Play Again'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppTheme.accent,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16)),
-                ),
+                onPressed: _isPlayingAgain ? null : _playAgain,
+                icon: _isPlayingAgain
+                    ? const SizedBox(
+                        width: 16,
+                        height: 16,
+                        child: CircularProgressIndicator(
+                            strokeWidth: 2, color: Colors.white),
+                      )
+                    : const Icon(Icons.replay_rounded, size: 18),
+                label: Text(_isPlayingAgain ? 'Loading...' : 'Play Again'),
               ),
             ),
             const SizedBox(width: 10),
@@ -463,19 +466,23 @@ class _ResultScreenState extends State<ResultScreen>
 
   // ── Play Again — no ad gate, just navigate directly ───────────
   Future<void> _playAgain() async {
-    if (!mounted) return;
+    if (_isPlayingAgain) return;
+    setState(() => _isPlayingAgain = true);
 
-    if (!AdService.instance.isPro) {
-      await AdService.instance.showRewardedAd(context);
+    try {
+      if (!AdService.instance.isPro) {
+        await AdService.instance.showRewardedAd(context);
+      }
       if (!mounted) return;
+      Navigator.of(context).pushReplacement(PageRouteBuilder(
+        pageBuilder: (_, anim, __) => GameScreen(session: widget.session),
+        transitionsBuilder: (_, anim, __, child) =>
+            FadeTransition(opacity: anim, child: child),
+        transitionDuration: const Duration(milliseconds: 280),
+      ));
+    } finally {
+      if (mounted) setState(() => _isPlayingAgain = false);
     }
-
-    Navigator.of(context).pushReplacement(PageRouteBuilder(
-      pageBuilder: (_, anim, __) => GameScreen(session: widget.session),
-      transitionsBuilder: (_, anim, __, child) =>
-          FadeTransition(opacity: anim, child: child),
-      transitionDuration: const Duration(milliseconds: 280),
-    ));
   }
 
   void _goHome() {
